@@ -67,7 +67,6 @@ class manager {
   }
 
   private static void getPass(String tag) {
-    System.out.print("\033[H\033[2J");
     try (Scanner scanner = new Scanner(storedPassFile)) {
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
