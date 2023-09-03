@@ -1,14 +1,19 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.util.Scanner;
 import javax.crypto.Cipher;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 class manager {
   static String storedPass = "1234";
   static Path storedPassFile = Paths.get("Pass.csv");
-  
+  static Logger logger = Logger.getLogger(manager.class);
 
   private static String encryptPass(String pass) {
     return pass;
@@ -26,7 +31,8 @@ class manager {
       System.out.println("Contraseña añadida correctamente.");
     } catch (Exception e) {
       System.out.print("\033[H\033[2J");
-      System.out.println("Error al añadir la contraseña.");
+      logger.warn("Error al añadir la contraseña", e);
+      //System.out.println("Error al añadir la contraseña.");
       return;
     }
   }
@@ -61,7 +67,8 @@ class manager {
         System.out.print("\033[H\033[2J");
       }
     } catch (Exception e) {
-      System.out.println("Error al leer el archivo de contraseñas. (Muchas)");
+      logger.error("Error al leer el archivo de contraseñas", e);
+      //System.out.println("Error al leer el archivo de contraseñas. (Muchas)");
       return;
     }
   }
@@ -79,9 +86,11 @@ class manager {
           return;
          }
        }
-       System.out.println("No se encontro la contraseña con este tag.");
+       logger.warn("No se encontró la contraseña con este tag.");
+       //System.out.println("No se encontro la contraseña con este tag.");
     } catch (Exception e) {
-      System.out.println("Error al leer el archivo de contraseñas.");
+      logger.error("Error al leer el archivo de contraseñas.", e);
+      //System.out.println("Error al leer el archivo de contraseñas.");
       return;
     }
   }
@@ -100,7 +109,7 @@ class manager {
           String tag1 = System.console().readLine();
           System.out.print("Por favor ingrese la contraseña:");
           String pass = System.console().readLine();
-          System.out.println("Confimer la contraseña:");
+          System.out.println("Confime la contraseña:");
           String pass2 = System.console().readLine();
           if (pass.equals(pass2)) {
             addPass(tag1, pass);
@@ -119,7 +128,8 @@ class manager {
           break;
 
         default:
-          System.out.println("Opcion invalida, por favor intente de nuevo.");
+          logger.warn("Opción invalida, por favor intente de nuevo.");
+          //System.out.println("Opcion invalida, por favor intente de nuevo.");
           break;
       }
     }
@@ -152,7 +162,8 @@ class manager {
           flag = false;
           break;
         default:
-          System.out.println("Opcion invalida, por favor intente de nuevo.");
+          logger.warn("Opción invalida, por favor intente de nuevo.");
+          //System.out.println("Opcion invalida, por favor intente de nuevo.");
           break;
       }
     }
@@ -161,9 +172,12 @@ class manager {
   }
 
   public static void main(String[] args) {
+    String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j.properties";   
+    PropertyConfigurator.configure(log4jConfigFile);
     System.out.println("Bienvenido!");
     if (!Files.exists(storedPassFile)) {
-      System.out.println("Usuario nuevo detectado, creando archivo de contraseñas...");
+      logger.info("Usuario nuevo detectado, creando archivo de contraseñas...");
+      //System.out.println("Usuario nuevo detectado, creando archivo de contraseñas...");
       Boolean flag = true;
       while (flag) {
         System.out.println("Por favor ingrese la contraseña nueva:");
@@ -177,16 +191,19 @@ class manager {
               String f = pass + "\n";
               Files.write(storedPassFile, f.getBytes(), StandardOpenOption.APPEND);
             } catch (Exception e) {
-              System.out.println("Error al añadir la contraseña.");
+              logger.error("Error al añadir la contraseña.",e);
+              //System.out.println("Error al añadir la contraseña.");
               return;
             }
             flag = false;
           } catch (Exception e) {
-            System.out.println("Error al crear el archivo de contraseñas.");
+            logger.error("Error al crear el archivo de contraseñas",e);
+            //System.out.println("Error al crear el archivo de contraseñas.");
             return;
           }
         } else {
-          System.out.println("Las contraseñas no coinciden, por favor intente de nuevo.");
+          logger.warn("Las contraseñas no coinciden, por favor intente de nuevo.");
+          //System.out.println("Las contraseñas no coinciden, por favor intente de nuevo.");
         }
       }
     }
@@ -198,7 +215,8 @@ class manager {
       if (pass.equals(storedPass)) {
         flag = false;
       } else {
-        System.out.println("Contraseña incorrecta, por favor intente de nuevo.");
+        logger.warn("Contraseña incorrecta, por favor intente de nuevo.");
+        //System.out.println("Contraseña incorrecta, por favor intente de nuevo.");
       }
     }
     System.out.print("\033[H\033[2J");
@@ -222,7 +240,8 @@ class manager {
           flag = false;
           break;
         default:
-          System.out.println("Opcion invalida, por favor intente de nuevo.");
+          logger.warn("Opción invalida, por favor intente de nuevo.");
+          //System.out.println("Opcion invalida, por favor intente de nuevo.");
           break;
       }
     System.out.print("\033[H\033[2J");
