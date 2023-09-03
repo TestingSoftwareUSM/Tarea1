@@ -1,25 +1,17 @@
-import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.*;
-import java.security.KeyPairGenerator;
-import java.security.Signature;
 import java.util.Scanner;
-import javax.crypto.Cipher;
 
 class manager {
   static Path storedPassFile = Paths.get("Pass.csv");
-  
-
-  private static String encryptPass(String pass) {
-    return pass;
-  }
-
-  private static String decryptPass(String pass) {
-    return pass;
-  }
 
   private static void addPass(String tag, String pass) {
     String line = tag + "," + pass + "\n";
     try {
+      Encrypter encrypter = new Encrypter();
+      line = encrypter.encrypt(line);
+      line = line + "\n";
       Files.write(storedPassFile, line.getBytes(), StandardOpenOption.APPEND);
       System.out.print("\033[H\033[2J");
       System.out.println("Contraseña añadida correctamente.");
@@ -35,8 +27,10 @@ class manager {
       String[] currentPage = new String[4];
       String completo = "";
       int i = 1;
+      Encrypter encrypter = new Encrypter();
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
+        line = encrypter.decrypt(line);
         String[] parts = line.split(",");
         currentPage[i - 1] = parts[1];
         completo = completo + i + ". Tag: " + parts[0] + "\n";
@@ -67,8 +61,10 @@ class manager {
 
   private static void getPass(String tag) {
     try (Scanner scanner = new Scanner(storedPassFile)) {
+      Encrypter encrypter = new Encrypter();
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
+        line = encrypter.decrypt(line);
         String[] parts = line.split(",");
         if (parts[0].equals(tag)) {
           System.out.println("Tag: " + tag + "\nContraseña: " + parts[1]);
@@ -124,7 +120,7 @@ class manager {
     }
   }
 
-  private static void createUser(){
+  private static void createUser() throws Exception{
     System.out.println("Usuario nuevo detectado, creando archivo de contraseñas...");
       Boolean flag = true;
       while (flag) {
@@ -135,13 +131,11 @@ class manager {
         if (pass.equals(pass2)) {
           try {
             Files.createFile(storedPassFile);
-            try {
-              String f = pass + "\n";
-              Files.write(storedPassFile, f.getBytes(), StandardOpenOption.APPEND);
-            } catch (Exception e) {
-              System.out.println("Error al añadir la contraseña.");
-              return;
-            }
+            Encrypter encrypter = new Encrypter();
+            pass = encrypter.encrypt(pass);
+            String line = pass + "\n";
+            Files.write(storedPassFile, line.getBytes(), StandardOpenOption.APPEND);
+            System.out.println("Contraseña creada correctamente.");
             flag = false;
           } catch (Exception e) {
             System.out.println("Error al crear el archivo de contraseñas.");
@@ -156,11 +150,13 @@ class manager {
   private static void checkOriginPass() {
     try {Scanner scanner = new Scanner(storedPassFile);
       String originPass = scanner.nextLine();
+      Encrypter encrypter = new Encrypter();
+      String decripted = encrypter.decrypt(originPass);
       Boolean flag = true;
       while (flag) {
         System.out.println("Por favor ingrese la contraseña:");
         String pass = System.console().readLine();
-        if (pass.equals(originPass)) {
+        if (pass.equals(decripted)) {
           scanner.close();
           System.out.println("Contraseña correcta.");
           flag = false;
@@ -169,9 +165,8 @@ class manager {
         }
       }
     } catch (Exception e) {
-      System.out.println("Error al leer el archivo de contraseñas.");
+      System.out.println("Error al leer el archivo de contraseñas. " + e );
       return;
-
     }
   }
 
@@ -180,8 +175,8 @@ class manager {
   }
 
   private static void checkPass() {
-    Boolean flag = true;
-    while (flag){
+    Boolean flag2 = true;
+    while (flag2){
       System.out.println("Que desea hacer?");
       System.out.println("1. Mostrar contraseñas");
       System.out.println("2. Buscar contraseña");
@@ -199,24 +194,20 @@ class manager {
           getPass(tag);
           break;
         case "3":
-          flag = false;
-          break;
+          return;
         default:
           System.out.println("Opcion invalida, por favor intente de nuevo.");
           break;
       }
     }
-    
-    
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     System.out.println("Bienvenido!");
     if (!Files.exists(storedPassFile)) {
       createUser();
     }
     checkOriginPass();
-    System.out.print("\033[H\033[2J");
     // ------------------Desde aqui es el flujo normal del programa-------------------
     boolean flag = true;
     System.out.println("Bienvenido al gestor de contraseñas, que desea hacer?");
@@ -230,9 +221,11 @@ class manager {
         case "1":
           System.out.print("\033[H\033[2J");
           newPass();
+          break;
         case "2":
           System.out.print("\033[H\033[2J");
           checkPass();
+          break;
         case "3":
           flag = false;
           break;
