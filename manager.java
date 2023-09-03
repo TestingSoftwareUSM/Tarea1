@@ -6,7 +6,6 @@ import java.util.Scanner;
 import javax.crypto.Cipher;
 
 class manager {
-  static String storedPass = "1234";
   static Path storedPassFile = Paths.get("Pass.csv");
   
 
@@ -125,6 +124,57 @@ class manager {
     }
   }
 
+  private static void createUser(){
+    System.out.println("Usuario nuevo detectado, creando archivo de contraseñas...");
+      Boolean flag = true;
+      while (flag) {
+        System.out.println("Por favor ingrese la contraseña nueva:");
+        String pass = System.console().readLine();
+        System.out.println("Por favor confirme la contraseña:");
+        String pass2 = System.console().readLine();
+        if (pass.equals(pass2)) {
+          try {
+            Files.createFile(storedPassFile);
+            try {
+              String f = pass + "\n";
+              Files.write(storedPassFile, f.getBytes(), StandardOpenOption.APPEND);
+            } catch (Exception e) {
+              System.out.println("Error al añadir la contraseña.");
+              return;
+            }
+            flag = false;
+          } catch (Exception e) {
+            System.out.println("Error al crear el archivo de contraseñas.");
+            return;
+          }
+        } else {
+          System.out.println("Las contraseñas no coinciden, por favor intente de nuevo.");
+        }
+      }
+  }
+
+  private static void checkOriginPass() {
+    try {Scanner scanner = new Scanner(storedPassFile);
+      String originPass = scanner.nextLine();
+      Boolean flag = true;
+      while (flag) {
+        System.out.println("Por favor ingrese la contraseña:");
+        String pass = System.console().readLine();
+        if (pass.equals(originPass)) {
+          scanner.close();
+          System.out.println("Contraseña correcta.");
+          flag = false;
+        } else {
+          System.out.println("Contraseña incorrecta, por favor intente de nuevo.");
+        }
+      }
+    } catch (Exception e) {
+      System.out.println("Error al leer el archivo de contraseñas.");
+      return;
+
+    }
+  }
+
   private static String genPass() {
     return "1234";
   }
@@ -163,47 +213,12 @@ class manager {
   public static void main(String[] args) {
     System.out.println("Bienvenido!");
     if (!Files.exists(storedPassFile)) {
-      System.out.println("Usuario nuevo detectado, creando archivo de contraseñas...");
-      Boolean flag = true;
-      while (flag) {
-        System.out.println("Por favor ingrese la contraseña nueva:");
-        String pass = System.console().readLine();
-        System.out.println("Por favor confirme la contraseña:");
-        String pass2 = System.console().readLine();
-        if (pass.equals(pass2)) {
-          try {
-            Files.createFile(storedPassFile);
-            try {
-              String f = pass + "\n";
-              Files.write(storedPassFile, f.getBytes(), StandardOpenOption.APPEND);
-            } catch (Exception e) {
-              System.out.println("Error al añadir la contraseña.");
-              return;
-            }
-            flag = false;
-          } catch (Exception e) {
-            System.out.println("Error al crear el archivo de contraseñas.");
-            return;
-          }
-        } else {
-          System.out.println("Las contraseñas no coinciden, por favor intente de nuevo.");
-        }
-      }
+      createUser();
     }
-    System.out.print("\033[H\033[2J");
-    Boolean flag = true;
-    while (flag) {
-      System.out.println("Por favor ingrese la contraseña para entrar:");
-      String pass = System.console().readLine();
-      if (pass.equals(storedPass)) {
-        flag = false;
-      } else {
-        System.out.println("Contraseña incorrecta, por favor intente de nuevo.");
-      }
-    }
+    checkOriginPass();
     System.out.print("\033[H\033[2J");
     // ------------------Desde aqui es el flujo normal del programa-------------------
-    flag = true;
+    boolean flag = true;
     System.out.println("Bienvenido al gestor de contraseñas, que desea hacer?");
     while (flag) {
       System.out.println("1. Crear nueva contraseña");
