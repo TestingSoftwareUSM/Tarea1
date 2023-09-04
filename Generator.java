@@ -3,12 +3,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class Generator {
-    final static int LOWERCASE_MIN = 97; // ASCII value for 'a'
-    final static int LOWERCASE_MAX = 122; // ASCII value for 'z'
-    final static int UPPERCASE_MIN = 65; // ASCII value for 'A'
-    final static int UPPERCASE_MAX = 90; // ASCII value for 'Z'
-    final static int DIGIT_MIN = 48; // ASCII value for '0'
-    final static int DIGIT_MAX = 57; // ASCII value for '9'
+    final static int LOWERCASE_MIN = 97;
+    final static int LOWERCASE_MAX = 122;
+    final static int UPPERCASE_MIN = 65;
+    final static int UPPERCASE_MAX = 90;
+    final static int DIGIT_MIN = 48; 
+    final static int DIGIT_MAX = 57; 
     final static String SYMBOLS = "!@#$%^&*()-_=+[]{}|;:'\",.<>?";
     
 
@@ -21,13 +21,13 @@ public class Generator {
         String tempPassword = String.valueOf(lowercase) + String.valueOf(uppercase) + String.valueOf(digit) + String.valueOf(symbol);
     
 
-        int desiredLength = 12; // Change this to your desired password length
+        int desiredLength = 12;
         int remainingLength = desiredLength - tempPassword.length();
 
         StringBuilder passwordBuilder = new StringBuilder(tempPassword);
 
         for (int i = 0; i < remainingLength; i++) {
-            int randomCategory = (int) (Math.random() * 4); // 0 for lowercase, 1 for uppercase, 2 for digit, 3 for symbol
+            int randomCategory = (int) (Math.random() * 4);
 
         switch (randomCategory) {
             case 0:
