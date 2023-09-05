@@ -1,7 +1,12 @@
 import java.nio.file.*;
 import java.util.Scanner;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 class manager {
+	static Logger logger = Logger.getLogger(manager.class);
 	static Path storedPassFile = Paths.get("Pass.csv");
 
   	private static void addPass(String tag, String pass) {
@@ -12,10 +17,10 @@ class manager {
 	  		line = line + "\n";
 	  		Files.write(storedPassFile, line.getBytes(), StandardOpenOption.APPEND);
 			System.out.print("\033[H\033[2J");
-			System.out.println("Contraseña añadida correctamente.");
+			logger.info("Contraseña añadida correctamente.");
 		} catch (Exception e) {
 			System.out.print("\033[H\033[2J");
-			System.out.println("Error al añadir la contraseña.");
+			logger.error("Error al añadir la contraseña.",e);
 			return;
 		}
   	}
@@ -53,7 +58,7 @@ class manager {
 			System.out.print("\033[H\033[2J");
 		}
 		} catch (Exception e) {
-		System.out.println("Error al leer el archivo de contraseñas. (Muchas)");
+		logger.error("Error al leer el archivo de contraseñas.",e);
 		return;
 		}
 	}
@@ -73,9 +78,9 @@ class manager {
 			return;
 			}
 		}
-		System.out.println("No se encontro la contraseña con este tag.");
+		logger.info("No se encontro la contraseña.");
 		} catch (Exception e) {
-		System.out.println("Error al leer el archivo de contraseñas.");
+		logger.warn("Error al leer el archivo de contraseñas.",e);
 		return;
 		}
 	}
@@ -90,32 +95,32 @@ class manager {
 		String option = System.console().readLine();
 		switch (option) {
 			case "1":
-			System.out.print("Por favor ingrese un tag para la contraseña:");
-			String tag1 = System.console().readLine();
-			System.out.print("Por favor ingrese la contraseña:");
-			String pass = System.console().readLine();
-			System.out.println("Confimer la contraseña:");
-			String pass2 = System.console().readLine();
-			if (pass.equals(pass2)) {
-				addPass(tag1, pass);
-			} else {
-				System.out.println("Las contraseñas no coinciden, por favor intente de nuevo.");
-			}
-			break;
+				System.out.print("Por favor ingrese un tag para la contraseña:");
+				String tag1 = System.console().readLine();
+				System.out.print("Por favor ingrese la contraseña:");
+				String pass = System.console().readLine();
+				System.out.println("Confimer la contraseña:");
+				String pass2 = System.console().readLine();
+				if (pass.equals(pass2)) {
+					addPass(tag1, pass);
+				} else {
+					logger.warn("Las contraseñas no coinciden, por favor intente de nuevo.");
+				}
+				break;
 			case "2":
-			System.out.print("Por favor ingrese un tag para la contraseña:");
-			String tag2 = System.console().readLine();
-			String tempPass = genPass();
-			System.out.println("La contraseña generada es: " + tempPass + " para el tag: " + tag2);
-			System.out.println("Presione enter para continuar.");
-			System.console().readLine();
-			addPass(tag2, tempPass);
+				System.out.print("Por favor ingrese un tag para la contraseña:");
+				String tag2 = System.console().readLine();
+				String tempPass = genPass();
+				System.out.println("La contraseña generada es: " + tempPass + " para el tag: " + tag2);
+				System.out.println("Presione enter para continuar.");
+				System.console().readLine();
+				addPass(tag2, tempPass);
 			case "3":
-			flag = false;
-			break;
+				flag = false;
+				break;
 
 			default:
-			System.out.println("Opcion invalida, por favor intente de nuevo.");
+				logger.warn("Opcion invalida, por favor intente de nuevo.");
 			break;
 		}
 		}
@@ -139,11 +144,11 @@ class manager {
 			System.out.println("Contraseña creada correctamente.");
 			flag = false;
 			} catch (Exception e) {
-			System.out.println("Error al crear el archivo de contraseñas.");
+				logger.error("Error al crear el archivo de contraseñas",e);
 			return;
 			}
 		} else {
-			System.out.println("Las contraseñas no coinciden, por favor intente de nuevo.");
+			logger.warn("Las contraseñas no coinciden, por favor intente de nuevo.");
 		}
 		}
 	}
@@ -159,15 +164,15 @@ class manager {
 			System.out.println("Por favor ingrese la contraseña:");
 			String pass = System.console().readLine();
 			if (pass.equals(decripted)) {
-			scanner.close();
-			System.out.println("Contraseña correcta.");
-			flag = false;
+				scanner.close();
+				logger.info("Contraseña correcta.");
+				flag = false;
 			} else {
-			System.out.println("Contraseña incorrecta, por favor intente de nuevo.");
+				logger.warn("Contraseña incorrecta, por favor intente de nuevo.");
 			}
 		}
 		} catch (Exception e) {
-		System.out.println("Error al leer el archivo de contraseñas. " + e);
+			logger.error("Error al leer el archivo de contraseñas.",e);
 		return;
 		}
 	}
@@ -179,34 +184,35 @@ class manager {
 	private static void checkPass() {
 		Boolean flag2 = true;
 		while (flag2) {
-		System.out.println("Que desea hacer?");
-		System.out.println("1. Mostrar contraseñas");
-		System.out.println("2. Buscar contraseña");
-		System.out.println("3. Volver");
-		String opcion = System.console().readLine();
-		switch (opcion) {
-			case "1":
-			System.out.println("Mostrando contraseñas...");
-			showPass();
-			break;
-			case "2":
-			System.out.println("Por favor ingrese el tag de la contraseña que desea buscar:");
-			String tag = System.console().readLine();
-			System.out.println("Buscando contraseña...");
-			getPass(tag);
-			break;
-			case "3":
-			return;
-			default:
-			System.out.println("Opcion invalida, por favor intente de nuevo.");
-			break;
-		}
+			System.out.println("Que desea hacer?");
+			System.out.println("1. Mostrar contraseñas");
+			System.out.println("2. Buscar contraseña");
+			System.out.println("3. Volver");
+			String opcion = System.console().readLine();
+			switch (opcion) {
+				case "1":
+					System.out.println("Mostrando contraseñas...");
+					showPass();
+					break;
+				case "2":
+					System.out.println("Por favor ingrese el tag de la contraseña que desea buscar:");
+					String tag = System.console().readLine();
+					System.out.println("Buscando contraseña...");
+					getPass(tag);
+					break;
+				case "3":
+					return;
+				default:
+					System.out.println("Opcion invalida, por favor intente de nuevo.");
+					break;
+			}
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Bienvenido!");
 		if (!Files.exists(storedPassFile)) {
+			
 		createUser();
 		}
 		checkOriginPass();
@@ -221,22 +227,21 @@ class manager {
 
 		switch (option) {
 			case "1":
-			System.out.print("\033[H\033[2J");
-			newPass();
+				System.out.print("\033[H\033[2J");
+				newPass();
 			break;
 			case "2":
-			System.out.print("\033[H\033[2J");
-			checkPass();
+				System.out.print("\033[H\033[2J");
+				checkPass();
 			break;
 			case "3":
-			flag = false;
-			break;
+				flag = false;
+				break;
 			default:
-			System.out.println("Opcion invalida, por favor intente de nuevo.");
+				System.out.println("Opcion invalida, por favor intente de nuevo.");
 			break;
 		}
 		System.out.print("\033[H\033[2J");
-
 		}
 	}
 }
